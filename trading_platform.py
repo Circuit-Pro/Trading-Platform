@@ -16,7 +16,10 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 
 import smtplib
 
+# API libary
 #import td_api
+import EODHD_API
+
 
 # Load Config
 config = configparser.ConfigParser()
