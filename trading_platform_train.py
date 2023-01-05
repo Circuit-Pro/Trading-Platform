@@ -160,8 +160,5 @@ pyplot.show()
 
 
 # Save ML model to disk
-filename = 'mymodel1.sav'
+filename = '/Users/johnreichard/Documents/GitHub/Trading-Platform/Models/model.sav'
 joblib.dump(model, filename)
-
-#load the model from disk
-loaded_model = joblib.load('mymodel1.sav')
