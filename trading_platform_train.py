@@ -15,6 +15,8 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
+import joblib
+
 
 
 df = pd.read_csv("/Users/johnreichard/Documents/GitHub/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv")
@@ -155,3 +157,11 @@ print("Accuracy Gambler: %.2f%%" % (accuracy_test * 100.0))
 #plot feature importance
 plot_importance(model)
 pyplot.show()
+
+
+# Save ML model to disk
+filename = 'mymodel1.sav'
+joblib.dump(model, filename)
+
+#load the model from disk
+loaded_model = joblib.load('mymodel1.sav')
