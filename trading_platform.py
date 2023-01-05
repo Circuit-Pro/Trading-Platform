@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import configparser
+from os import getcwd
 import numpy as np
 import pandas_ta as ta
 import pandas as pd
@@ -15,10 +16,11 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 
 import smtplib
 
+#import td_api
 
 # Load Config
 config = configparser.ConfigParser()
-config.read('/Users/johnreichard/Documents/GitHub/Trading-Platform/config.ini')
+config.read(getcwd() + '/Trading-Platform/config.ini') # Read the file.
 config.sections()
 gmail_config = config['GMAIL']
 notifications_c = config['NOTIFICATIONS']
@@ -32,14 +34,11 @@ to = notifications_c['email_to']
 subject = 'Trading info'
 
 # Load the model that we trained
-loaded_model = joblib.load('/Users/johnreichard/Documents/GitHub/Trading-Platform/Models/model.sav')
-
+loaded_model = joblib.load(getcwd() + '/Trading-Platform/Models/model.onyx')
 
 ModelPrediction = 0
-def XGB_job():
-    td_consumer_key=api_config['account_id']
-    endpoint=api_config['endpoint']
-    collector =  #CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
+def XGB_job(stock_data):
+    collector =  stock_data #CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
     candles = collector.grab(2*161)
 
     dfstream = pd.DataFrame(columns=['Open','Close','High','Low'])

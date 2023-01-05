@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import pandas_ta as ta
 from scipy.stats import linregress
+from os import getcwd
+import joblib
 
 # Analysis Example libraries
 import matplotlib.pyplot as plt
@@ -15,9 +17,7 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-import joblib
-
-df = pd.read_csv("/Users/johnreichard/Documents/GitHub/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv")
+df = pd.read_csv(getcwd() + '/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv')
 df.tail()
 
 #Check if any zero volumes are available
@@ -122,7 +122,7 @@ print(X)
 
 # Finally Training the Model
 
-#random sampling
+#random sampling - sloppier
 #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=10)
 
 #sequential sampling
@@ -156,5 +156,5 @@ plot_importance(model)
 pyplot.show()
 
 # Save ML model to disk
-filename = '/Users/johnreichard/Documents/GitHub/Trading-Platform/Models/model.sav'
+filename = getcwd() + '/Trading-Platform/Models/model.onyx'
 joblib.dump(model, filename)
