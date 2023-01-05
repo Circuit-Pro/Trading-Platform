@@ -17,8 +17,6 @@ from xgboost import XGBClassifier
 
 import joblib
 
-
-
 df = pd.read_csv("/Users/johnreichard/Documents/GitHub/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv")
 df.tail()
 
@@ -28,7 +26,6 @@ indexZeros = df[ df['volume'] == 0 ].index
 df.drop(indexZeros , inplace=True)
 df.loc[(df["volume"] == 0 )]
 df.isna().sum()
-
 
 #df.ta.indicators()
 #help(ta.atr)
@@ -157,7 +154,6 @@ print("Accuracy Gambler: %.2f%%" % (accuracy_test * 100.0))
 #plot feature importance
 plot_importance(model)
 pyplot.show()
-
 
 # Save ML model to disk
 filename = '/Users/johnreichard/Documents/GitHub/Trading-Platform/Models/model.sav'

@@ -97,7 +97,9 @@ def XGB_job():
     ModelPrediction = loaded_model.predict(X_model)
   
     msg = str(ModelPrediction) # 0 no clear trend, 1 downtrend, 2 uptrend
-        # send email with 
+
+    
+    # send email with 
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     server.ehlo()
     server.login(gmail_user, gmail_password)
