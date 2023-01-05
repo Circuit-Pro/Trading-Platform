@@ -2,17 +2,20 @@
 from eodhd import APIClient
 from os import getcwd
 import configparser
+import pandas as pd
+from IPython.display import display
+
 
 # Initialize the Parser.
 config = configparser.ConfigParser()
 
 # Read the file.
 config.read(getcwd().replace('/api', '') + '/Trading-Platform/config.ini')
-api = config['API']
+api_config = config['API']
 
-def get_update():
-    
-    api = APIClient(api['api_key'])
+def get_update(asset, search_input):
+
+    api = APIClient(api_config['api_key'])
 
     resp = api.get_exchanges()
     print(resp)
@@ -51,5 +54,18 @@ def get_update():
     print(resp)
     # print(resp.dtypes)
     # print(resp.describe())
+    return data
     
-    
+def main():
+    assets = pd.DataFrame(pd.Series(['stock', 'etf', 'fund', 'bonds', 'index', 'commodity', 'crypto'])).rename(columns = {0:'asset'})
+    asset = input('Type of asset [stock, etf, fund, bonds, index, commodity, crypto]: ')
+
+    if len(assets[assets.asset == asset]) == 0:
+        print('Input Error: Asset not found', color = 'red')
+    else:
+        search_input = input(f'Search {asset}: ')
+        print(f'\nSearch Results for {search_input}', '\n')
+        search_results = get_update(asset, search_input)
+        display(search_results)
+if __name__ == "__main__":
+    main()

@@ -20,7 +20,6 @@ import smtplib
 #import td_api
 import EODHD_API
 
-
 # Load Config
 config = configparser.ConfigParser()
 config.read(getcwd() + '/Trading-Platform/config.ini') # Read the file.
