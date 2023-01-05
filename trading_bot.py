@@ -21,20 +21,20 @@ def predict_stock(ticker, period):
         messagebox.showerror("Error", str(e))
         return None
 
-        # Convert stock data to numpy array
-        X = np.array(range(len(stock_data))).reshape(-1, 1)
-        y = np.array(stock_data['Close']).reshape(-1, 1)
+    # Convert stock data to numpy array
+    X = np.array(range(len(stock_data))).reshape(-1, 1)
+    y = np.array(stock_data['Close']).reshape(-1, 1)
 
-        # Fit linear regression model
-        model = LinearRegression().fit(X, y)
+    # Fit linear regression model
+    model = LinearRegression().fit(X, y)
 
-        # Make predictions
-        predictions = model.predict(X)
+    # Make predictions
+    predictions = model.predict(X)
 
-        # Add predictions to stock data
-        stock_data['Prediction'] = predictions
+    # Add predictions to stock data
+    stock_data['Prediction'] = predictions
 
-        return stock_data
+    return stock_data
 
 # Function to create tab for stock
 def create_tab(ticker, period, percentage):
