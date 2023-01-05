@@ -1,7 +1,18 @@
-import yfinance as yf
-import numpy as np
+import os
+try:
+    import yfinance as yf
+except ModuleNotFoundError:
+    os.system('python3 -m pip install yfinance')
+    import yfinance as yf
+try:
+    import numpy as np
+except ModuleNotFoundError:
+    os.system('python3 -m pip install numpy')
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+try:
+    from sklearn.linear_model import LinearRegression
+except ModuleNotFoundError:
+    os.system('python3 -m pip install scikit-learn')
 import tkinter as tk
 from tkinter import ttk
 from tkinter import StringVar
