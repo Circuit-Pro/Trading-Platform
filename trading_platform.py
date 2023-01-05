@@ -10,7 +10,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from oandapyV20 import API
 import oandapyV20.endpoints.orders as orders
 from oandapyV20.contrib.requests import MarketOrderRequest
-from oanda_candles import Pair, Gran, CandleCollector
+#from oanda_candles import Pair, Gran, CandleCollector
 from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 
 import smtplib
@@ -37,8 +37,9 @@ loaded_model = joblib.load('/Users/johnreichard/Documents/GitHub/Trading-Platfor
 
 ModelPrediction = 0
 def XGB_job():
-    access_token=config['API_ACCESS_TOKEN']['access_token']
-    collector = CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
+    td_consumer_key=api_config['account_id']
+    endpoint=api_config['endpoint']
+    collector =  #CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
     candles = collector.grab(2*161)
 
     dfstream = pd.DataFrame(columns=['Open','Close','High','Low'])
@@ -98,13 +99,13 @@ def XGB_job():
   
     msg = str(ModelPrediction) # 0 no clear trend, 1 downtrend, 2 uptrend
 
-    
-    # send email with 
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    server.ehlo()
-    server.login(gmail_user, gmail_password)
-    server.sendmail(sent_from, to, msg)
-    server.close()
+    # send email with Gmail if there is a clear trend or downtrend
+    if msg > 0:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(gmail_user, gmail_password)
+        server.sendmail(sent_from, to, msg)
+        server.close()
     
     
     # EXECUTING ORDERS
