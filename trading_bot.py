@@ -34,7 +34,8 @@ def predict_stock(ticker, period):
 def create_tab(ticker, percentage, period):
     # Retrieve stock data and predictions
     stock_data = predict_stock(ticker, period)
-# Add buying and selling points to stock data
+
+    # Add buying and selling points to stock data
     stock_data['Buying Point'] = stock_data['Close'].shift(1) * (1 + percentage/100)
     stock_data['Selling Point'] = stock_data['Close'].shift(1) * (1 - percentage/100)
 
@@ -47,9 +48,7 @@ def create_tab(ticker, percentage, period):
     ax = figure.add_subplot(111)
 
     # Add stock data to tab
-   
-
-    stock_data.plot(x=x, y=['Close', 'Prediction', 'Buying Point', 'Selling Point'], ax=ax, x_compat=True)
+    stock_data.plot(x='Date', y=['Close', 'Prediction', 'Buying Point', 'Selling Point'], ax=ax)
 
     # Add Matplotlib figure to Tkinter tab
     canvas = FigureCanvasTkAgg(figure, tab)
@@ -59,27 +58,52 @@ def create_tab(ticker, percentage, period):
 # Create main window
 window = tk.Tk()
 window.title("Stock Predictor")
-window.geometry("600x400")
+window.geometry("600x400") # Make this window resizeable, minamizeable, and fullscreen capeable.
 
 # Create tab control
 tab_control = ttk.Notebook(window)
 tab_control.pack(expand=1, fill='both')
 
-# Create input field for ticker
-ticker_label = tk.Label(window, text="Ticker:")
-ticker_label.pack()
-ticker_entry = tk.Entry(window)
-ticker_entry.pack()
+# Create input frame
+input_frame = Frame(window)
+input_frame.pack(side='top')
 
-# Create input field for percentage
+# Create ticker label and entry
+ticker_label = tk.Label(input_frame, text="Ticker:")
+ticker_label.pack(side='left')
+ticker_entry = tk.Entry(input_frame)
+ticker_entry.pack(side='left')
+
+# Create percentage label and entry
+
 percentage_label = tk.Label(window, text="Percentage:")
+percentage_entry = tk.Entry(window)
+if percentage_entry is None:
+    percentage_entry = 0.01 # Default?
 percentage_label.pack()
-percentage_entry = tk.Spinbox(window, from_=0, to=100, increment=1)
 percentage_entry.pack()
 
-# Create button to add ticker to tab control
-add_button = tk.Button(window, text="Add", command=lambda: create_tab(ticker_entry.get(), float(percentage_entry.get())))
+#Create period label and entry
+
+period_label = tk.Label(window, text="Time Period : YTD")
+period_entry = tk.Entry(window)
+if period_entry is None:
+    period_entry = '1Y' # 1 YTD Default
+period_label.pack()
+period_entry.pack()
+
+#Create add button
+
+add_button = tk.Button(window, text="Add", command=lambda: create_tab(ticker_entry.get(), float(percentage_entry.get()), period_entry.get()))
 add_button.pack()
 
+#Create quit button
+
+quit_button = tk.Button(window, text="Quit", command=window.quit)
+quit_button.pack()
+
+#Run Tkinter event loop
+
 window.mainloop()
+
 
