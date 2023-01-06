@@ -17,7 +17,7 @@ from xgboost import plot_importance
 #from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
-total_steps = 25
+total_steps = 28
 with tqdm(total=total_steps, desc="% Loading % ", smoothing=True, unit="%") as pbar:
     print("! Loading Data Set !")
     pbar.update(1)  # update progress bar manually
@@ -44,7 +44,9 @@ with tqdm(total=total_steps, desc="% Loading % ", smoothing=True, unit="%") as p
     pbar.update(1)  # update progress bar manually
     def get_slope(array):
         y = np.array(array)
+        pbar.update(1)  # update progress bar manually
         x = np.arange(len(y))
+        pbar.update(1)  # update progress bar manually
         slope, intercept, r_value, p_value, std_err = linregress(x,y)
         return slope
     pbar.update(1)  # update progress bar manually
@@ -102,6 +104,7 @@ with tqdm(total=total_steps, desc="% Loading % ", smoothing=True, unit="%") as p
     # mytarget(barsfront to take into account, dataframe)
     df['mytarget'] = mytarget(16, df)
     df.head()
+    pbar.update(1)  # update progress bar manually
 
     df_model= df[['Volume', 'ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope', 'mytarget']] 
 
