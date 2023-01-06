@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 import configparser
-from os import getcwd
+from os import *
+import os
+import sendgrid
+from sendgrid.helpers.mail import *
 import numpy as np
 import pandas_ta as ta
 import pandas as pd
 import joblib
 import datetime as dt
-
-from apscheduler.schedulers.blocking import BlockingScheduler
-import smtplib
+import smtplib, ssl
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import json
@@ -18,7 +19,6 @@ from oandapyV20.contrib.requests import MarketOrderRequest
 from oanda_candles import Pair, Gran, CandleCollector, CandleClient
 from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 
-import smtplib
 
 # Load Config
 config = configparser.ConfigParser()
@@ -29,8 +29,8 @@ notifications_c = config['NOTIFICATIONS']
 api_config = config['API']
 
 # Email Config
-gmail_user = gmail_config['username']
-gmail_password = gmail_config['password']
+gmail_user = "CPI.Test.email.jr@gmail.com" #gmail_config['username']
+gmail_password = "01060387" #gmail_config['password']
 sent_from = gmail_user
 to = notifications_c['email_to']
 subject = 'Trading info'
@@ -102,11 +102,14 @@ def XGB_job():
     
     #------------------------------------
     # send email with 
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    server.ehlo()
-    server.login(gmail_user, gmail_password)
+    sg = sendgrid.SendGridAPIClient(api_key='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')
+    from_email = Email("sheila@mrhousepb.com")
     msg = str(signal)+" USDJPY  "
-    server.sendmail(sent_from, to, msg)
+    mail = Mail(from_email, to, subject, msg)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
     #________________________________________________________________________________________________
     
     # EXECUTING ORDERS

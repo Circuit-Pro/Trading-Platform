@@ -19,7 +19,7 @@ from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
 
-df = pd.read_csv(getcwd() + '/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv')
+df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/new_set.csv')
 df.tail()
 
 #Check if any zero volumes are available
