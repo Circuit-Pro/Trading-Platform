@@ -76,7 +76,7 @@ def XGB_job():
     ratio1 = [0] * length
     ratio2 = [0] * length
    
-    #print(X_stream.high[0])
+    print(X_stream.high[0])
 
     for row in range(0,length):
         highdiff[row] = X_stream.high[row]-max(X_stream.open[row],X_stream.close[row])
@@ -141,7 +141,7 @@ def XGB_job():
         print(rv)
     #Buy
     elif signal == 2:
-        mo = MarketOrderRequest(instrument="USD_JPY", units=1000, takeProfitOnFill=TakeProfitDetails(price=TPBuy).data, stopLossOnFill=StopLossDetails(price=SLBuy).data)
+        mo = MarketOrderRequest(instrument="USD_CAD", units=1000, takeProfitOnFill=TakeProfitDetails(price=TPBuy).data, stopLossOnFill=StopLossDetails(price=SLBuy).data)
         r = orders.OrderCreate(accountID, data=mo.data)
         rv = client.request(r)
         print(rv)
@@ -149,7 +149,7 @@ def XGB_job():
 #XGB_job()
 ## Interval time job scheduler ##
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
+scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
 #scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
 #scheduler.add_job(XGB_job, 'interval', seconds=5)
 scheduler.start()
