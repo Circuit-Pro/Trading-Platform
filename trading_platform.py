@@ -6,23 +6,22 @@ import pandas_ta as ta
 import pandas as pd
 import joblib
 import datetime as dt
-
+import json
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from oandapyV20 import API
 import oandapyV20.endpoints.orders as orders
 from oandapyV20.contrib.requests import MarketOrderRequest
-#from oanda_candles import Pair, Gran, CandleCollector
+from oanda_candles import Pair, Gran, CandleCollector
 from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 from scipy.stats import linregress
 
 import smtplib
 
 # API libary
-import yfinance
+#import yfinance
 #import td_api
 #import EODHD_API
-
 
 # Load Config
 config = configparser.ConfigParser()
@@ -30,6 +29,7 @@ config.read(getcwd() + '/Trading-Platform/config.ini') # Read the file.
 config.sections()
 gmail_config = config['GMAIL']
 notifications_c = config['NOTIFICATIONS']
+api_config = config['API']
 
 # Email Config
 gmail_user = gmail_config['username']
@@ -44,8 +44,8 @@ loaded_model = joblib.load(getcwd() + '/Trading-Platform/Models/model.onyx')
 stocks = ['MSFT']
 
 ModelPrediction = 0
-def XGB_job(stock_data):
-        access_token="INSERT TOKEN HERE, YOU GET IT FROM YOUR OANDA ACCOUNT"
+def XGB_job():
+    access_token=api_config['access_token']
     collector = CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
     candles = collector.grab(2*161)
 
@@ -68,8 +68,6 @@ def XGB_job(stock_data):
     #dfstream['MA80'] = dfstream['Open'].rolling(window=80).mean()
     #dfstream['MA160'] = dfstream['Open'].rolling(window=160).mean()
     
-    import numpy as np
-    import pandas_ta as ta
     #attributes=['ATR', 'RSI', 'Average', 
     #'MA40', 'MA80', 'MA160', 'slopeMA40', 
     #'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope']
@@ -81,11 +79,11 @@ def XGB_job(stock_data):
     dfstream['MA160'] = dfstream.ta.sma(length=160)
 
 #from scipy.stats import linregress
-#def get_slope(array):
-#    y = np.array(array)
-#    x = np.arange(len(y))
-#    slope, intercept, r_value, p_value, std_err = linregress(x,y)
-#    return slope
+    def get_slope(array):
+        y = np.array(array)
+        x = np.arange(len(y))
+        slope, intercept, r_value, p_value, std_err = linregress(x,y)
+        return slope
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     backrollingN = 6
@@ -98,8 +96,8 @@ def XGB_job(stock_data):
 
     #________________________________________________________________________________________________
     X_stream = dfstream.iloc[[320]]# !!! Index takes last CLOSED candle
-    #attributes=['ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 
-    #'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope']
+    attributes=['ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 
+    'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope']
     X_model = X_stream[attributes]
     
     # Apply the model for predictions
@@ -117,7 +115,7 @@ def XGB_job(stock_data):
     
     
     # EXECUTING ORDERS
-    accountID = "1432-432-0000" #use your account ID
+    accountID = api_config['account_id'] #use your account ID
     client = API(access_token)
 
     candles = collector.grab(1)
@@ -145,11 +143,10 @@ def XGB_job(stock_data):
         r = orders.OrderCreate(accountID, data=mo.data)
         rv = client.request(r)
         print(rv)
-
+XGB_job()
 ## Interval time job scheduler ##
-#scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-#scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
-#scheduler.add_job(some_job, 'interval', hours=4)
+scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
+scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
+#scheduler.add_job(XGB_job, 'interval', hours=4)
 #scheduler.start()
-XGB_job(yfinance.download(stocks, start='2022-01-01', end='2023-01-04', group_by='ticker'))
-print(yfinance.download(stocks, start='2022-01-01', end='2023-01-04', group_by='ticker'))
+
