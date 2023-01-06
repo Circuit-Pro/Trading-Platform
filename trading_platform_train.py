@@ -17,8 +17,8 @@ from xgboost import plot_importance
 #from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
-total_steps = 20
-with tqdm(total=total_steps, desc="% - Training Model - % ") as pbar:
+total_steps = 15
+with tqdm(total=total_steps, desc="% - Training Model - % ", type='%') as pbar:
     print("! Loading Data Set !")
     pbar.update(1)  # update progress bar manually
     df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
