@@ -6,22 +6,19 @@ import pandas_ta as ta
 import pandas as pd
 import joblib
 import datetime as dt
-import json
-from apscheduler.schedulers.blocking import BlockingScheduler
 
+from apscheduler.schedulers.blocking import BlockingScheduler
+import smtplib
+
+from apscheduler.schedulers.blocking import BlockingScheduler
+import json
 from oandapyV20 import API
 import oandapyV20.endpoints.orders as orders
 from oandapyV20.contrib.requests import MarketOrderRequest
-from oanda_candles import Pair, Gran, CandleCollector
+from oanda_candles import Pair, Gran, CandleCollector, CandleClient
 from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
-from scipy.stats import linregress
 
 import smtplib
-
-# API libary
-#import yfinance
-#import td_api
-#import EODHD_API
 
 # Load Config
 config = configparser.ConfigParser()
@@ -46,103 +43,110 @@ stocks = ['MSFT']
 ModelPrediction = 0
 def XGB_job():
     access_token=api_config['access_token']
-    collector = CandleCollector(access_token, Pair.USD_CHF, Gran.H4)
+    client = CandleClient(access_token, real=False)
+    #collector = CandleCollector(access_token, Pair.USD_JPY, Gran.D)
+    collector = client.get_collector(Pair.USD_JPY, Gran.D)
     candles = collector.grab(2*161)
 
-    dfstream = pd.DataFrame(columns=['Open','Close','High','Low'])
+    dfstream = pd.DataFrame(columns=['open','close','high','low'])
     i=0
     for candle in candles:
-        dfstream.loc[i, ['Open']] = pd.DataFrame(column='Open')
-        dfstream.loc[i, ['Close']] = float(str(candle.bid.c))
-        dfstream.loc[i, ['High']] = float(str(candle.bid.h))
-        dfstream.loc[i, ['Low']] = float(str(candle.bid.l))
+        dfstream.loc[i, ['open']] = float(str(candle.bid.o))
+        dfstream.loc[i, ['close']] = float(str(candle.bid.c))
+        dfstream.loc[i, ['high']] = float(str(candle.bid.h))
+        dfstream.loc[i, ['low']] = float(str(candle.bid.l))
         i=i+1
 
-    dfstream['Open'] = dfstream['Open'].astype(float)
-    dfstream['Close'] = dfstream['Close'].astype(float)
-    dfstream['High'] = dfstream['High'].astype(float)
-    dfstream['Low'] = dfstream['Low'].astype(float)
+    dfstream['open'] = dfstream['open'].astype(float)
+    dfstream['close'] = dfstream['close'].astype(float)
+    dfstream['high'] = dfstream['high'].astype(float)
+    dfstream['low'] = dfstream['low'].astype(float)
 
-    #dfstream['Average'] = (dfstream['High']+dfstream['Low'])/2
-    #dfstream['MA40'] = dfstream['Open'].rolling(window=40).mean()
-    #dfstream['MA80'] = dfstream['Open'].rolling(window=80).mean()
-    #dfstream['MA160'] = dfstream['Open'].rolling(window=160).mean()
-    
-    #attributes=['ATR', 'RSI', 'Average', 
-    #'MA40', 'MA80', 'MA160', 'slopeMA40', 
-    #'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope']
+   
+    import numpy as np
+    import pandas_ta as ta
     dfstream['ATR'] = dfstream.ta.atr(length=20)
     dfstream['RSI'] = dfstream.ta.rsi()
-    dfstream['Average'] = dfstream.ta.midprice(length=1) #midprice
-    dfstream['MA40'] = dfstream.ta.sma(length=40)
-    dfstream['MA80'] = dfstream.ta.sma(length=80)
-    dfstream['MA160'] = dfstream.ta.sma(length=160)
-
-#from scipy.stats import linregress
-    def get_slope(array):
-        y = np.array(array)
-        x = np.arange(len(y))
-        slope, intercept, r_value, p_value, std_err = linregress(x,y)
-        return slope
-
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    backrollingN = 6
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    dfstream['slopeMA40'] = dfstream['MA40'].rolling(window=backrollingN).apply(get_slope, raw=True)
-    dfstream['slopeMA80'] = dfstream['MA80'].rolling(window=backrollingN).apply(get_slope, raw=True)
-    dfstream['slopeMA160'] = dfstream['MA160'].rolling(window=backrollingN).apply(get_slope, raw=True)
-    dfstream['AverageSlope'] = dfstream['Average'].rolling(window=backrollingN).apply(get_slope, raw=True)
-    dfstream['RSISlope'] = dfstream['RSI'].rolling(window=backrollingN).apply(get_slope, raw=True)
 
     #________________________________________________________________________________________________
-    X_stream = dfstream.iloc[[320]]# !!! Index takes last CLOSED candle
-    attributes=['ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 
-    'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope']
-    X_model = X_stream[attributes]
+    X_stream = dfstream.iloc[[319,320]].copy()# !!! Index takes last CLOSED candle and the one before
+    X_stream.reset_index(drop=True, inplace=True)
+    signal = 0
+    length = len(X_stream)
+
+    highdiff = [0] * length
+    lowdiff = [0] * length
+    bodydiff = [0] * length
+    ratio1 = [0] * length
+    ratio2 = [0] * length
+   
+    #print(X_stream.high[0])
+
+    for row in range(0,length):
+        highdiff[row] = X_stream.high[row]-max(X_stream.open[row],X_stream.close[row])
+        bodydiff[row] = abs(X_stream.open[row]-X_stream.close[row])
+        if bodydiff[row]<0.002:
+            bodydiff[row]=0.002
+        lowdiff[row] = min(X_stream.open[row],X_stream.close[row])-X_stream.low[row]
+        ratio1[row] = highdiff[row]/bodydiff[row]
+        ratio2[row] = lowdiff[row]/bodydiff[row]
+
+    row=1
+    if (ratio1[row]>2.5 and lowdiff[row]<0.3*highdiff[row] and bodydiff[row]>0.03 and X_stream.RSI[row]>50 and X_stream.RSI[row]<70 ):
+        signal = 1
+    elif (ratio2[row-1]>2.5 and highdiff[row-1]<0.23*lowdiff[row-1] and bodydiff[row-1]>0.03 and bodydiff[row]>0.04 and X_stream.Close[row]>X_stream.open[row] and X_stream.close[row]>X_stream.high[row-1] and X_stream.RSI[row]<55 and X_stream.RSI[row]>30):
+        signal = 2
+    else:
+        signal = 0
     
-    # Apply the model for predictions
-    ModelPrediction = loaded_model.predict(X_model)
-  
-    msg = str(ModelPrediction) # 0 no clear trend, 1 downtrend, 2 uptrend
+    
     #------------------------------------
     # send email with 
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     server.ehlo()
     server.login(gmail_user, gmail_password)
+    msg = str(signal)+" USDJPY  "
     server.sendmail(sent_from, to, msg)
-    server.close()
     #________________________________________________________________________________________________
     
-    
     # EXECUTING ORDERS
-    accountID = api_config['account_id'] #use your account ID
+    
+    accountID = api_config['account_id'] #your account ID here
     client = API(access_token)
-
+    
     candles = collector.grab(1)
-#    for candle in candles:
-#        print(candle.bid.o)
-#        print(candle.bid.c)
+    for candle in candles:
+        print(candle.bid.o)
+        print(candle.bid.c)
+        print(candle.bid.h)
+        print(candle.bid.l)
     
-    pipdiff = 500*1e-5 #for TP
-    SLTPRatio = 2 #pipdiff/Ratio gives SL
+    pipdiff = X_stream.ATR[row]*1. #highdiff*1.3 #for SL 400*1e-3
+    if pipdiff<1.1:
+        pipdiff=1.1
+            
+    SLTPRatio = 2. #pipdiff*Ratio gives TP
     
-    TPBuy = float(str(candle.bid.o))+pipdiff
-    SLBuy = float(str(candle.bid.o))-(pipdiff/SLTPRatio)
-    TPSell = float(str(candle.bid.o))-pipdiff
-    SLSell = float(str(candle.bid.o))+(pipdiff/SLTPRatio)
+    TPBuy = float(str(candle.bid.o))+pipdiff*SLTPRatio
+    SLBuy = float(str(candle.bid.o))-pipdiff
+    TPSell = float(str(candle.bid.o))-pipdiff*SLTPRatio
+    SLSell = float(str(candle.bid.o))+pipdiff
+    
+    print(TPBuy, "  ", SLBuy, "  ", TPSell, "  ", SLSell)
     
     #Sell
-    if ModelPrediction == 1:
-        mo = MarketOrderRequest(instrument="USD_CHF", units=-1000, takeProfitOnFill=TakeProfitDetails(price=TPSell).data, stopLossOnFill=StopLossDetails(price=SLSell).data)
+    if signal == 1:
+        mo = MarketOrderRequest(instrument="USD_JPY", units=-1000, takeProfitOnFill=TakeProfitDetails(price=TPSell).data, stopLossOnFill=StopLossDetails(price=SLSell).data)
         r = orders.OrderCreate(accountID, data=mo.data)
         rv = client.request(r)
         print(rv)
     #Buy
-    elif ModelPrediction == 2:
-        mo = MarketOrderRequest(instrument="USD_CHF", units=1000, takeProfitOnFill=TakeProfitDetails(price=TPBuy).data, stopLossOnFill=StopLossDetails(price=SLBuy).data)
+    elif signal == 2:
+        mo = MarketOrderRequest(instrument="USD_JPY", units=1000, takeProfitOnFill=TakeProfitDetails(price=TPBuy).data, stopLossOnFill=StopLossDetails(price=SLBuy).data)
         r = orders.OrderCreate(accountID, data=mo.data)
         rv = client.request(r)
         print(rv)
+
 XGB_job()
 ## Interval time job scheduler ##
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
