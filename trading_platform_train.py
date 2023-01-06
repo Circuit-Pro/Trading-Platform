@@ -23,10 +23,10 @@ df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
 df.tail()
 
 #Check if any zero volumes are available
-indexZeros = df[ df['volume'] == 0 ].index
+indexZeros = df[ df['Volume'] == 0 ].index
 
 df.drop(indexZeros , inplace=True)
-df.loc[(df["volume"] == 0 )]
+df.loc[(df["Volume"] == 0 )]
 df.isna().sum()
 
 #df.ta.indicators()
@@ -62,10 +62,10 @@ SLTPRatio = 2 #pipdiff/Ratio gives SL
 
 def mytarget(barsupfront, df1):
     length = len(df1)
-    high = list(df1['high'])
-    low = list(df1['low'])
-    close = list(df1['close'])
-    open = list(df1['open'])
+    high = list(df1['High'])
+    low = list(df1['Low'])
+    close = list(df1['Close'])
+    open = list(df1['Open'])
     trendcat = [None] * length
     
     for line in range (0,length-barsupfront-2):

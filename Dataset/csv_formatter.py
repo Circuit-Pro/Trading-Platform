@@ -25,7 +25,7 @@ with open(output_file, 'w', newline='') as f_output:
     csv_output = csv.writer(f_output, lineterminator='\n')
 
     # Write the header row to the output file
-    csv_output.writerow(['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
+    csv_output.writerow(['Local time', 'Open', 'High', 'Low', 'Close', 'Volume'])
     
     # Iterate through all CSV files in the input directory
     for input_file in tqdm(csv_files, unit="file"):
