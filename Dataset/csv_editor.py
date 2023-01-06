@@ -2,7 +2,7 @@
 
 # This script converts data sets to the properly expected format.
 # converts 2007-01-01 00:00:00 to 18.10.2019 00:00:00.000 GMT+0300
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import csv
 import os
 
@@ -24,8 +24,7 @@ with open(input_file, 'r') as f_input, open(output_file, 'w', newline='') as f_o
             continue
         tz = timezone(timedelta(hours=3))  # create a timezone object for GMT+0300
         dt = dt.replace(tzinfo=tz)  # assign the timezone to the datetime object
-        row[0] = dt.strftime('%d.%m.%Y %H:%M:%S.000 GMT+0300')  # assign the revised format
+        row[0] = dt.strftime('%d.%m.%Y %H:%M:%S.%f GMT+0300')  # assign the revised format
         csv_output.writerow(row)
         print("Successfully Formatted Row:", row, "\n")
     print("Success!")
-
