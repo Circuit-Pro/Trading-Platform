@@ -18,7 +18,7 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 total_steps = 28
-with tqdm(total=total_steps, desc="% Loading % ", smoothing=True, unit="%") as pbar:
+with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%") as pbar:
     print("! Loading Data Set !")
     pbar.update(1)  # update progress bar manually
     df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
@@ -44,9 +44,7 @@ with tqdm(total=total_steps, desc="% Loading % ", smoothing=True, unit="%") as p
     pbar.update(1)  # update progress bar manually
     def get_slope(array):
         y = np.array(array)
-        pbar.update(1)  # update progress bar manually
         x = np.arange(len(y))
-        pbar.update(1)  # update progress bar manually
         slope, intercept, r_value, p_value, std_err = linregress(x,y)
         return slope
     pbar.update(1)  # update progress bar manually
