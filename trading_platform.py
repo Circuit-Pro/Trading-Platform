@@ -9,7 +9,6 @@ import pandas_ta as ta
 import pandas as pd
 import joblib
 import datetime as dt
-import smtplib, ssl
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import json
@@ -29,9 +28,6 @@ notifications_c = config['NOTIFICATIONS']
 api_config = config['API']
 
 # Email Config
-gmail_user = "CPI.Test.email.jr@gmail.com" #gmail_config['username']
-gmail_password = "01060387" #gmail_config['password']
-sent_from = gmail_user
 to = notifications_c['email_to']
 subject = 'Trading info'
 
@@ -104,12 +100,12 @@ def XGB_job():
     # send email with 
     sg = sendgrid.SendGridAPIClient(api_key='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')
     from_email = Email("sheila@mrhousepb.com")
-    msg = str(signal)+" USDJPY  "
+    msg = str(signal)+" TEST  "
     mail = Mail(from_email, to, subject, msg)
-    response = sg.client.mail.send.post(request_body=mail.get())
-    print(response.status_code)
-    print(response.body)
-    print(response.headers)
+    sg.client.mail.send.post(request_body=mail.get())
+    #print(response.status_code)
+    #print(response.body)
+    #print(response.headers)
     #________________________________________________________________________________________________
     
     # EXECUTING ORDERS
@@ -153,7 +149,7 @@ def XGB_job():
 XGB_job()
 ## Interval time job scheduler ##
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
+scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', minute=1, jitter=120, timezone='America/New_York')
 #scheduler.add_job(XGB_job, 'interval', hours=4)
-#scheduler.start()
+scheduler.start()
 

@@ -18,6 +18,7 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 total_steps = 28
+print("Training model...")
 with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%") as pbar:
     print("! Loading Data Set !")
     pbar.update(1)  # update progress bar manually
@@ -143,6 +144,7 @@ with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%"
     pbar.update(1)  # update progress bar manually
     pred_test = model.predict(X_test)
     pbar.update(1)  # update progress bar manually
+    print("!#@^*$ Training Completed @^*#!")
 
     # Accuracy/Sanity check
     print("<------% Sanity Check  %----->")
