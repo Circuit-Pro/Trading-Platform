@@ -23,7 +23,6 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 config = configparser.ConfigParser()
 config.read(getcwd() + '/Trading-Platform/config.ini') # Read the file.
 config.sections()
-gmail_config = config['GMAIL']
 notifications_c = config['NOTIFICATIONS']
 api_config = config['API']
 
@@ -115,10 +114,10 @@ def XGB_job():
     
     candles = collector.grab(1)
     for candle in candles:
-        print(candle.bid.o)
-        print(candle.bid.c)
-        print(candle.bid.h)
-        print(candle.bid.l)
+        print("Bid O:", candle.bid.o)
+        print("Bid C:", candle.bid.c)
+        print("Bid H:", candle.bid.h)
+        print("Bid L:", candle.bid.l)
     
     pipdiff = X_stream.ATR[row]*1. #highdiff*1.3 #for SL 400*1e-3
     if pipdiff<1.1:
@@ -131,7 +130,7 @@ def XGB_job():
     TPSell = float(str(candle.bid.o))-pipdiff*SLTPRatio
     SLSell = float(str(candle.bid.o))+pipdiff
     
-    print(TPBuy, "  ", SLBuy, "  ", TPSell, "  ", SLSell)
+    print("TPBuy:",TPBuy, " SLBuy: ", SLBuy, " TPSell: ", TPSell, " SLSell: ", SLSell)
     
     #Sell
     if signal == 1:
@@ -149,8 +148,8 @@ def XGB_job():
 #XGB_job()
 ## Interval time job scheduler ##
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
+#scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
 #scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
-#scheduler.add_job(XGB_job, 'interval', seconds=5)
+scheduler.add_job(XGB_job, 'interval', seconds=5)
 scheduler.start()
 
