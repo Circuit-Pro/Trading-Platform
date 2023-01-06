@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from typing import Self
 import pandas as pd
 import numpy as np
 import pandas_ta as ta
@@ -19,8 +18,6 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-
-ScannerClient.scan_markets(self)
 
 df = pd.read_csv(getcwd() + '/Trading-Platform/USDJPY_Candlestick_1_D_ASK_05.05.2003-19.10.2019.csv')
 df.tail()
