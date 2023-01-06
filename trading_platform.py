@@ -2,6 +2,8 @@
 import configparser
 from os import *
 import os
+import sys
+import time
 import sendgrid
 from sendgrid.helpers.mail import *
 import numpy as np
@@ -20,6 +22,7 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 
 
 # Load Config
+print("Loading Configuration")
 config = configparser.ConfigParser()
 config.read(getcwd() + '/Trading-Platform/config.ini') # Read the file.
 config.sections()
@@ -31,6 +34,7 @@ to = notifications_c['email_to']
 subject = 'Trading info'
 
 # Load the model that we trained
+print("Loading Model")
 loaded_model = joblib.load(getcwd() + '/Trading-Platform/Models/model.onyx')
 
 stocks = ['MSFT']
@@ -148,24 +152,28 @@ def XGB_job():
 #XGB_job()
 ## Interval time job scheduler ##
 # Initialize scheduler
+
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
 
 # Add a job to the scheduler
-print(scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York'))
+print(scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/1', minute=59, jitter=120, timezone='America/New_York'))
 
-# Start the scheduler
-scheduler.start()
 
 # Run the loop
 while True:
     # Check if there are any jobs in the scheduler
     if scheduler.get_jobs():
         # Print the list of active jobs
-        print("Active Jobs:", scheduler.get_jobs())
+        print("Active Jobs:", scheduler.get_jobs(), end="\r")
+        sys.stdout.flush()
     else:
-        # No active jobs
-        print("No active jobs.")
-        
+        print("No active jobs", end='\r')
+        sys.stdout.flush()
+        # Start the scheduler
+        scheduler.start()  
+        time.sleep(1)        
+
+    
         
 
 
