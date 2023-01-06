@@ -90,32 +90,18 @@ def mytarget(barsupfront, df1):
             
     return trendcat
 
-print("^ Target Found in Data Frame ^")
+print("@ ^--^ @ Target Found in Data Frame @ ^--^ @")
 # mytarget(barsfront to take into account, dataframe)
 df['mytarget'] = mytarget(16, df)
 df.head()
 
 print("!***! Anaylsis of Target !***!")
-
 # Analysis example 
 fig = plt.figure(figsize = (8.9,8.9))
 ax = fig.gca()
 df_model= df[['Volume', 'ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope', 'mytarget']] 
 df_model.hist(ax = ax)
 plt.show() # Kind of obnoctious...
-
-# RSI Alone as Trend indicator
-
-df_up=df.RSI[ df['mytarget'] == 2 ]
-df_down=df.RSI[ df['mytarget'] == 1 ]
-df_unclear=df.RSI[ df['mytarget'] == 0 ]
-pyplot.hist(df_unclear, bins=100, alpha=0.5, label='unclear')
-pyplot.hist(df_down, bins=100, alpha=0.5, label='down')
-pyplot.hist(df_up, bins=100, alpha=0.5, label='up')
-
-pyplot.legend(loc='upper right')
-pyplot.show()
-
 print("#*#*#* Splitting Features and Targets *#*#")
 # Splitting Features and targets
 df_model=df_model.dropna()
@@ -137,14 +123,14 @@ X_train, X_test = X[:train_index], X[train_index:]
 y_train, y_test = y[:train_index], y[train_index:]
 
 # Training the Model
-print("Training")
+print("!#@^*$ Training $*^@#!")
 model = XGBClassifier()
 model.fit(X_train, y_train)
 pred_train = model.predict(X_train)
 pred_test = model.predict(X_test)
 
 # Accuracy/Sanity check
-print("Sanity Check")
+print("<------% Sanity Check  %----->")
 acc_train = accuracy_score(y_train, pred_train)
 acc_test = accuracy_score(y_test, pred_test)
 print('****Train Results****')
@@ -158,7 +144,22 @@ accuracy_test = accuracy_score(y_test, pred_test)
 print("Accuracy Gambler: %.2f%%" % (accuracy_test * 100.0))
 
 #plot feature importance
+print("!---! Plotting Feature Importance !---!")
 plot_importance(model)
+pyplot.show()
+
+
+
+# RSI Alone as Trend indicator
+print("!***! Anaylsis of RSI Trend indicator !***!")
+df_up=df.RSI[ df['mytarget'] == 2 ]
+df_down=df.RSI[ df['mytarget'] == 1 ]
+df_unclear=df.RSI[ df['mytarget'] == 0 ]
+pyplot.hist(df_unclear, bins=100, alpha=0.5, label='unclear')
+pyplot.hist(df_down, bins=100, alpha=0.5, label='down')
+pyplot.hist(df_up, bins=100, alpha=0.5, label='up')
+
+pyplot.legend(loc='upper right')
 pyplot.show()
 
 # Save ML model to disk
