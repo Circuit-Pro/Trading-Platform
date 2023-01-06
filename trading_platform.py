@@ -146,10 +146,11 @@ def XGB_job():
         rv = client.request(r)
         print(rv)
 
-XGB_job()
+#XGB_job()
 ## Interval time job scheduler ##
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', minute=1, jitter=120, timezone='America/New_York')
-#scheduler.add_job(XGB_job, 'interval', hours=4)
+scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
+#scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
+#scheduler.add_job(XGB_job, 'interval', seconds=5)
 scheduler.start()
 
