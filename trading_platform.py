@@ -147,9 +147,25 @@ def XGB_job():
 
 #XGB_job()
 ## Interval time job scheduler ##
+# Initialize scheduler
 scheduler = BlockingScheduler(job_defaults={'misfire_grace_time': 15*60})
-scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York')
-#scheduler.add_job(XGB_job, 'cron', day_of_week='mon-fri', hour='*/4', minute=5, jitter=120, timezone='America/New_York')
-#scheduler.add_job(XGB_job, 'interval', seconds=5)
+
+# Add a job to the scheduler
+print(scheduler.add_job(XGB_job, 'cron', day_of_week='mon-sun', hour='*/23', minute=59, jitter=120, timezone='America/New_York'))
+
+# Start the scheduler
 scheduler.start()
+
+# Run the loop
+while True:
+    # Check if there are any jobs in the scheduler
+    if scheduler.get_jobs():
+        # Print the list of active jobs
+        print("Active Jobs:", scheduler.get_jobs())
+    else:
+        # No active jobs
+        print("No active jobs.")
+        
+        
+
 
