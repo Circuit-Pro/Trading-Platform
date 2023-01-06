@@ -19,7 +19,7 @@ from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
 
-df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/new_set.csv')
+df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
 df.tail()
 
 #Check if any zero volumes are available
