@@ -18,8 +18,8 @@ from xgboost import plot_importance
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-
-df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv', dtype={'Time': str, 'Open': float, 'High': float, 'Low': float, 'Close': float, 'Volume': float})
+print("! Loading Data Set !")
+df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
 df.tail()
 
 #Check if any zero volumes are available
@@ -38,6 +38,7 @@ df['MA40'] = df.ta.sma(length=40)
 df['MA80'] = df.ta.sma(length=80)
 df['MA160'] = df.ta.sma(length=160)
 
+print("# Calculating Slopes #")
 def get_slope(array):
     y = np.array(array)
     x = np.arange(len(y))
@@ -55,10 +56,11 @@ df['RSISlope'] = df['RSI'].rolling(window=backrollingN).apply(get_slope, raw=Tru
 
 df.tail()
 
-
 #Target flexible way
 pipdiff = 500*1e-5 #for TP
 SLTPRatio = 2 #pipdiff/Ratio gives SL
+
+print("* Getting Target *")
 
 def mytarget(barsupfront, df1):
     length = len(df1)
@@ -88,15 +90,17 @@ def mytarget(barsupfront, df1):
             
     return trendcat
 
+print("^ Target Found in Data Frame ^")
 # mytarget(barsfront to take into account, dataframe)
 df['mytarget'] = mytarget(16, df)
 df.head()
 
+print("!***! Anaylsis of Target !***!")
 
 # Analysis example 
 fig = plt.figure(figsize = (8.9,8.9))
 ax = fig.gca()
-df_model= df[['volume', 'ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope', 'mytarget']] 
+df_model= df[['Volume', 'ATR', 'RSI', 'Average', 'MA40', 'MA80', 'MA160', 'slopeMA40', 'slopeMA80', 'slopeMA160', 'AverageSlope', 'RSISlope', 'mytarget']] 
 df_model.hist(ax = ax)
 plt.show() # Kind of obnoctious...
 
@@ -112,7 +116,7 @@ pyplot.hist(df_up, bins=100, alpha=0.5, label='up')
 pyplot.legend(loc='upper right')
 pyplot.show()
 
-
+print("#*#*#* Splitting Features and Targets *#*#")
 # Splitting Features and targets
 df_model=df_model.dropna()
 
@@ -133,14 +137,14 @@ X_train, X_test = X[:train_index], X[train_index:]
 y_train, y_test = y[:train_index], y[train_index:]
 
 # Training the Model
-
+print("Training")
 model = XGBClassifier()
 model.fit(X_train, y_train)
 pred_train = model.predict(X_train)
 pred_test = model.predict(X_test)
 
 # Accuracy/Sanity check
-
+print("Sanity Check")
 acc_train = accuracy_score(y_train, pred_train)
 acc_test = accuracy_score(y_test, pred_test)
 print('****Train Results****')
@@ -160,3 +164,4 @@ pyplot.show()
 # Save ML model to disk
 filename = getcwd() + '/Trading-Platform/Models/model.onyx'
 joblib.dump(model, filename)
+print("Success!")
