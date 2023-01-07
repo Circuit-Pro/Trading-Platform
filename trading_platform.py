@@ -166,6 +166,7 @@ while True:
         # Print the list of active jobs
         print("Active Jobs:", scheduler.get_jobs(), end="\r")
         sys.stdout.flush()
+        time.sleep(1)  
     else:
         print("No active jobs", end='\r')
         sys.stdout.flush()
