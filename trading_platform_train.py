@@ -4,6 +4,7 @@ import numpy as np
 import pandas_ta as ta
 from scipy.stats import linregress
 from os import getcwd
+import os
 import joblib
 from tqdm import tqdm
 
@@ -172,7 +173,7 @@ with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%"
     # Save ML model to disk
     print("!***! Saving ML Model to disk!***!")
     try:
-        filename = getcwd() + 'Models/model.onyx'
+        filename = os.path.join(os.getcwd(), 'Models', 'Model.onyx')
         joblib.dump(model, filename)
         pbar.update(1)  # update progress bar manually
         print("Success! ML Model saved to disk")
