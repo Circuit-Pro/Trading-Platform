@@ -14,8 +14,8 @@ from tqdm import tqdm
 from datetime import datetime, timedelta, timezone
 
 # Set input and output directories
-input_dir = os.path.join(os.getcwd(), 'Trading-Platform', 'Dataset', 'Merge')
-output_file = os.path.join(os.getcwd(), 'Trading-Platform', 'Dataset', 'set.csv')
+input_dir = os.path.join(os.getcwd(), 'Dataset', 'Merge')
+output_file = os.path.join(os.getcwd(), 'Dataset', 'set.csv')
 
 # Get a list of all CSV files in the input directory
 csv_files = glob.glob(os.path.join(input_dir, '*.csv'))
