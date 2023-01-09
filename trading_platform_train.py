@@ -22,7 +22,7 @@ print("Training model...")
 with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%") as pbar:
     print("! Loading Data Set !")
     pbar.update(1)  # update progress bar manually
-    df = pd.read_csv(getcwd() + '/Trading-Platform/Dataset/set.csv')
+    df = pd.read_csv(getcwd() + '/Dataset/set.csv')
     df.tail()
 
     #Check if any zero volumes are available
@@ -53,15 +53,20 @@ with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%"
 
     #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     backrollingN = 6
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    print("# Calculating MA40 #")
     df['slopeMA40'] = df['MA40'].rolling(window=backrollingN).apply(get_slope, raw=True)
     pbar.update(1)  # update progress bar manually
+    print("# Calculating MA80 #")
     df['slopeMA80'] = df['MA80'].rolling(window=backrollingN).apply(get_slope, raw=True)
     pbar.update(1)  # update progress bar manually
+    print("# Calculating MA160 #")
     df['slopeMA160'] = df['MA160'].rolling(window=backrollingN).apply(get_slope, raw=True)
     pbar.update(1)  # update progress bar manually
+    print("# Calculating Average #")
     df['AverageSlope'] = df['Average'].rolling(window=backrollingN).apply(get_slope, raw=True)
     pbar.update(1)  # update progress bar manually
+    print("# Calculating RSI #")
     df['RSISlope'] = df['RSI'].rolling(window=backrollingN).apply(get_slope, raw=True)
     df.tail()
     pbar.update(1)  # update progress bar manually
@@ -167,7 +172,7 @@ with tqdm(total=total_steps, desc="% Processing % -> ", smoothing=True, unit="%"
     # Save ML model to disk
     print("!***! Saving ML Model to disk!***!")
     try:
-        filename = getcwd() + '/Trading-Platform/Models/model.onyx'
+        filename = getcwd() + 'Models/model.onyx'
         joblib.dump(model, filename)
         pbar.update(1)  # update progress bar manually
         print("Success! ML Model saved to disk")
